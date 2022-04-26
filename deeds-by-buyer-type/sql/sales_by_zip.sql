@@ -15,6 +15,6 @@ and partytype = 2
 and docdate >= '2003-01-01'
 and docamount > 100
 and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
-and pl.unitsres > 2
+and pl.unitsres > 3
 and trim(pl.zipcode) is not null
 group by year, zipcode
