@@ -54,13 +54,19 @@ and partytype = 2
 and docdate >= '2003-01-01'
 and docamount > 100
 and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
+-- EDIT THIS LINE TO FILTER BY ZIPCODE:
 -- and pl.zipcode = any('{11238,11205}')
 group by ptype, year;
 ", .con = con)
 
 
 # Individual Chart
-ggplot(data_nyc, aes(fill=ptype, y=bldg_sales_rent_stab, x=year)) + 
+ggplot(data_nyc, aes(
+    fill=ptype,
+    # Configure the housing type here:
+    y=bldg_sales_rent_stab, 
+    x=year)
+  ) + 
   geom_bar(position="dodge", stat="identity") +
   ggtitle(c("Who's been buying properties in NYC?")) +
   xlab("Year") +
@@ -70,7 +76,7 @@ ggplot(data_nyc, aes(fill=ptype, y=bldg_sales_rent_stab, x=year)) +
                       labels=c("Corporation", "Person")) +
   theme_fivethirtyeight()
 
-data_long <- data_ft_greene %>% 
+data_long <- data_nyc %>% 
   pivot_longer(
     starts_with("bldg"), 
     names_to = "bldg_type", 
