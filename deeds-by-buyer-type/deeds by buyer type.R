@@ -3,6 +3,10 @@ library(ggthemes) # chart themes
 library(dotenv) # get env variables
 library(glue) # glue_sql()
 library(DBI) # DB connection
+library(janitor) # clean datasets
+library(sf) # spatial data analysis
+
+### SETUP DB CONNECTION: 
 
 # Edit "Renviron.sample" to set variables and save as ".Renviron"
 load_dot_env(".Renviron")
@@ -18,49 +22,12 @@ con <- dbConnect(
   dbname = Sys.getenv("HDC_NYCDB_DBNAME")
 )
 
-# Use glue_sql() to insert our list of tracts into the WHERE statement: 
-# "where geoid in ({rtu_tracts*})"
+### VISUALIZE SALES BY BUYER TYPE OVER TIME:  
 
-# Reformat tract geoid column in pluto, create a crosswalk between NYC
-# boro-block and census tract because most other datasets don't have a tract
-# column.
+# Run custom SQL query in nydcb
+data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_housing_type.sql") , .con = con)
 
-# Then for each data set aggregate by tract to get various indicators relevant
-# to displacement risk, and finally join them all together by tract
-data_nyc <- dbGetQuery(con, "
-select 
-	case 
-		when p.name ~ any('{LLC,CORP,INC,BANK,ASSOC,TRUST}') then 'corp'
-	else 'person' end as ptype,
-	extract(year from docdate) as year,
-	count(distinct(bbl)) filter(where pl.unitsres > 0) as bldg_sales_all_residential,
-	count(distinct(bbl)) filter(where pl.unitsres > 1) as bldg_sales_2_plus_unit,
-	count(distinct(bbl)) filter(where pl.unitsres > 2) as bldg_sales_3_plus_unit,
-	count(distinct(bbl)) filter(where pl.unitsres > 3) as bldg_sales_4_plus_unit,
-	count(distinct(bbl)) filter(where pl.unitsres > 5) as bldg_sales_6_plus_unit,
-	count(distinct(bbl)) filter(where pl.unitsres <= 5) as bldg_sales_5_or_less_unit,
-	count(distinct(bbl)) filter(where pl.unitsres < 3) as bldg_sales_2_or_less_unit,
-	count(distinct(bbl)) filter(where pl.unitsres = 1) as bldg_sales_1_unit,
-	count(distinct(bbl)) filter(where rs.ucbbl is not null) as bldg_sales_rent_stab
-from real_property_parties p
-inner join real_property_master m using(documentid)
-inner join real_property_legals l using(documentid)
-left join pluto_21v3 pl using(bbl)
-left join (
-	select ucbbl from rentstab full join rentstab_v2 using(ucbbl)
-) rs on bbl = ucbbl
-where doctype = 'DEED' 
-and partytype = 2
-and docdate >= '2003-01-01'
-and docamount > 100
-and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
--- EDIT THIS LINE TO FILTER BY ZIPCODE:
--- and pl.zipcode = any('{11238,11205}')
-group by ptype, year;
-", .con = con)
-
-
-# Individual Chart
+# Map out Individual Chart
 ggplot(data_nyc, aes(
     fill=ptype,
     # Configure the housing type here:
@@ -100,4 +67,38 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
                       labels=c("Corporation", "Person")) +
   theme_fivethirtyeight()
 
+
+### MAP SALES BY ZIPCODE OVER TIME:  
+
+# Run custom SQL query in nycdb
+data_by_zip <- dbGetQuery(con, statement = read_file("sql/sales_by_zip.sql") , .con = con)
+
+# Load in spatial layer from shapefile
+nyc_zips_shapefile <- read_sf("nyc_zips/nyc_zips.shp") %>% 
+  janitor::clean_names() %>% 
+  st_transform(2263) %>%
+  select(zipcode)
+
+# Join spatial layer with sql data
+data_by_zip_shapefile = nyc_zips_shapefile %>% 
+  inner_join(data_by_zip, by = 'zipcode') %>%
+  mutate(predom = ifelse(corp_sales > total_sales/2, "corp", "person"))
+
+# Plot nyc map small multiples
+ggplot(data_by_zip_shapefile, aes(fill = predom)) +
+  geom_sf(color = "white", size = 0.05) +
+  facet_wrap(~ year, nrow = 2) + 
+  ggtitle(c("Who's has been buying property in your neighborhood?"), 
+          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
+  ) +
+  scale_fill_discrete(name="Predominant type of buyer:",
+                      breaks=c("corp", "person"),
+                      labels=c("Corporation", "Person")) +
+  theme_fivethirtyeight() +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank()
+  )
 
