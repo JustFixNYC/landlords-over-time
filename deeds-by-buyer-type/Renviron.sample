@@ -1,0 +1,8 @@
+# These variables define the PostgreSQL connection to NYCDB
+# Once configured, you can save this file as `.Renviron` in the root directory of your R project
+
+HDC_NYCDB_HOST=
+HDC_NYCDB_USER=
+HDC_NYCDB_PASSWORD=
+HDC_NYCDB_PORT=
+HDC_NYCDB_DBNAME=
