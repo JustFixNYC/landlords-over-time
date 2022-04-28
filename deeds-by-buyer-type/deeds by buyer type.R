@@ -31,17 +31,28 @@ data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_h
 ggplot(data_nyc, aes(
     fill=ptype,
     # Configure the housing type here:
-    y=bldg_sales_rent_stab, 
+    y=bldg_sales_3_plus_unit, 
     x=year)
   ) + 
   geom_bar(position="dodge", stat="identity") +
-  ggtitle(c("Who's been buying properties in NYC?")) +
+  ggtitle(c("Who's been buying properties in NYC?"), 
+          subtitle = "Trends in yearly property purchases, 3+ unit buildings" 
+  ) +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_fill_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
-                      labels=c("Corporation", "Person")) +
-  theme_fivethirtyeight()
+                      labels=c("Corporation", "Person"),
+                      type = c("#FFBA33", "#FFA0C7")
+                      ) +
+  theme_fivethirtyeight() +
+  theme(text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
+        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
+  )
+
+# ggsave("Graphics/all_nyc_trend.svg", device = "svg")
+  
 
 data_long <- data_nyc %>% 
   pivot_longer(
@@ -49,7 +60,8 @@ data_long <- data_nyc %>%
     names_to = "bldg_type", 
     values_to = "sales"
   ) %>% 
-  mutate(bldg_type = str_replace(bldg_type,"bldg_sales_",""))
+  mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
+  filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
 
 
 # Facet Chart
@@ -58,15 +70,21 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   geom_bar(position="dodge", stat="identity") +
   # Proportional stacked bar chart: 
   # geom_bar(position="fill", stat="identity") +
-  facet_wrap(~ bldg_type) +
+  facet_wrap(~ bldg_type, nrow = 3, scales = "free_y") +
   ggtitle(c("Who's been buying properties in NYC?")) +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_fill_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
-                      labels=c("Corporation", "Person")) +
-  theme_fivethirtyeight()
+                      labels=c("Corporation", "Person"),
+                      type = c("#FFBA33", "#FFA0C7")) +
+  theme_fivethirtyeight() +
+  theme(text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
+        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
+  )
 
+# ggsave("Graphics/trends_by_housing_type.svg", device = "svg", width=5, height=10)
 
 ### MAP SALES BY ZIPCODE OVER TIME:  
 
@@ -86,19 +104,25 @@ data_by_zip_shapefile = nyc_zips_shapefile %>%
 
 # Plot nyc map small multiples
 ggplot(data_by_zip_shapefile, aes(fill = predom)) +
-  geom_sf(color = "white", size = 0.05) +
+  geom_sf(color = "#242323", size = 0.05) +
   facet_wrap(~ year, nrow = 2) + 
   ggtitle(c("Who's has been buying property in your neighborhood?"), 
           subtitle = "Trends in yearly property purchases, 4+ unit buildings"
   ) +
   scale_fill_discrete(name="Predominant type of buyer:",
                       breaks=c("corp", "person"),
-                      labels=c("Corporation", "Person")) +
+                      labels=c("Corporation", "Person"),
+                      type = c("#FFBA33", "#FFA0C7")) +
   theme_fivethirtyeight() +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank(),
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank()
+        panel.grid.minor = element_blank(),
+        text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
   )
+
+# ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
+
 
