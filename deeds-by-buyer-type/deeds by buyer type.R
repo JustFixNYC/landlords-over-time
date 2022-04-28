@@ -63,7 +63,6 @@ data_long <- data_nyc %>%
   mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
   filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
 
-
 # Facet Chart
 ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   # Grouped bar chart: 
@@ -85,6 +84,40 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   )
 
 # ggsave("Graphics/trends_by_housing_type.svg", device = "svg", width=5, height=10)
+
+### VISUALIZE SALES BY NEIGHBORHOOD OVER TIME: 
+
+# Run custom SQL query in nycdb
+data_neighborhood <- dbGetQuery(con, statement = read_file("sql/sales_by_neighborhood.sql") , .con = con)
+
+data_neighborhood_long <- data_neighborhood %>% 
+  pivot_longer(
+    starts_with("bldg"), 
+    names_to = "bldg_type", 
+    values_to = "sales"
+  ) %>% 
+  mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
+  filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
+
+
+# Facet Chart
+ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
+  geom_line(size = 1.5) +
+  facet_wrap(neighborhood ~ bldg_type) +
+  ggtitle(c("Who's been buying properties in NYC?")) +
+  xlab("Year") +
+  ylab("Annual Property Purchases") +
+  scale_color_discrete(name="Buyer Type",
+                      breaks=c("corp", "person"),
+                      labels=c("Corporation", "Person"),
+                      type = c("#FFBA33", "#FFA0C7")) +
+  theme_fivethirtyeight() +
+  theme(text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
+        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
+  )
+
+# ggsave("Graphics/sales_by_neighborhood.svg", device = "svg")
 
 ### MAP SALES BY ZIPCODE OVER TIME:  
 
