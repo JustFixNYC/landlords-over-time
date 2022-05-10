@@ -5,6 +5,7 @@ library(glue) # glue_sql()
 library(DBI) # DB connection
 library(janitor) # clean datasets
 library(sf) # spatial data analysis
+library(rmapshaper) # simplifying spatial geometries
 
 ### SETUP DB CONNECTION: 
 
@@ -126,6 +127,7 @@ data_by_zip <- dbGetQuery(con, statement = read_file("sql/sales_by_zip.sql") , .
 
 # Load in spatial layer from shapefile
 nyc_zips_shapefile <- read_sf("nyc_zips/nyc_zips.shp") %>% 
+  rmapshaper::ms_simplify() %>%
   janitor::clean_names() %>% 
   st_transform(2263) %>%
   select(zipcode)
