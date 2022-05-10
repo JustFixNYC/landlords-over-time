@@ -160,4 +160,54 @@ ggplot(data_by_zip_shapefile, aes(fill = predom)) +
 
 # ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
 
+### COMPARE SALES BY ZIPCODE TO COVID EVICTION FILINGS:  
 
+# Run custom SQL query in nycdb
+evictions_by_zip <- dbGetQuery(con, statement = read_file("https://raw.githubusercontent.com/housing-data-coalition/rtc-eviction-viz/main/sql/filings-by-zip-since-0323.sql") , .con = con)
+
+# Join spatial layer with sql data
+evictions_by_zip_shapefile = nyc_zips_shapefile %>% 
+  inner_join(evictions_by_zip, by = 'zipcode')
+
+# Plot map of nyc eviction filings during COVID
+ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
+  geom_sf(color = "#242323", size = 0.05) +
+  ggtitle(c("Who's has been buying property in your neighborhood?"), 
+          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
+  ) +
+  theme_fivethirtyeight() +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
+  )
+
+# Summarize sales data to look only at specific year range
+data_by_zip_summarised <- data_by_zip %>%
+  filter(year >= 2016 & year <= 2018) %>%
+  group_by(zipcode) %>%
+  summarise(corp_sales = sum(corp_sales), total_sales = sum(total_sales)) %>%
+  mutate(pct_corp = corp_sales/total_sales)
+
+# Join spatial layer with sql data
+data_by_zip_summarised_shapefile = nyc_zips_shapefile %>% 
+  inner_join(data_by_zip_summarised, by = 'zipcode')
+
+# Plot map of percent corporate sales by zip 
+ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
+  geom_sf(color = "#242323", size = 0.05) +
+  ggtitle(c("Who's has been buying property in your neighborhood?"), 
+          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
+  ) +
+  theme_fivethirtyeight() +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        text = element_text(color = '#FAF8F4'),
+        rect = element_rect(fill = '#242323'),
+  )
