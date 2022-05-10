@@ -36,9 +36,6 @@ ggplot(data_nyc, aes(
     x=year)
   ) + 
   geom_bar(position="dodge", stat="identity") +
-  ggtitle(c("Who's been buying properties in NYC?"), 
-          subtitle = "Trends in yearly property purchases, 3+ unit buildings" 
-  ) +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_fill_discrete(name="Buyer Type",
@@ -71,7 +68,6 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   # Proportional stacked bar chart: 
   # geom_bar(position="fill", stat="identity") +
   facet_wrap(~ bldg_type, nrow = 3, scales = "free_y") +
-  ggtitle(c("Who's been buying properties in NYC?")) +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_fill_discrete(name="Buyer Type",
@@ -105,7 +101,6 @@ data_neighborhood_long <- data_neighborhood %>%
 ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
   geom_line(size = 1.5) +
   facet_wrap(neighborhood ~ bldg_type) +
-  ggtitle(c("Who's been buying properties in NYC?")) +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_color_discrete(name="Buyer Type",
@@ -141,9 +136,6 @@ data_by_zip_shapefile = nyc_zips_shapefile %>%
 ggplot(data_by_zip_shapefile, aes(fill = predom)) +
   geom_sf(color = "#242323", size = 0.05) +
   facet_wrap(~ year, nrow = 2) + 
-  ggtitle(c("Who's has been buying property in your neighborhood?"), 
-          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
-  ) +
   scale_fill_discrete(name="Predominant type of buyer:",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
@@ -172,9 +164,6 @@ evictions_by_zip_shapefile = nyc_zips_shapefile %>%
 # Plot map of nyc eviction filings during COVID
 ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
   geom_sf(color = "#242323", size = 0.05) +
-  ggtitle(c("Who's has been buying property in your neighborhood?"), 
-          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
-  ) +
   theme_fivethirtyeight() +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
@@ -199,9 +188,6 @@ data_by_zip_summarised_shapefile = nyc_zips_shapefile %>%
 # Plot map of percent corporate sales by zip 
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
   geom_sf(color = "#242323", size = 0.05) +
-  ggtitle(c("Who's has been buying property in your neighborhood?"), 
-          subtitle = "Trends in yearly property purchases, 4+ unit buildings"
-  ) +
   theme_fivethirtyeight() +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
