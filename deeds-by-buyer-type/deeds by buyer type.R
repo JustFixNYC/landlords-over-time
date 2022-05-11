@@ -36,7 +36,7 @@ jf_black = '#242323'
 jf_white = '#FAF8F4'
 jf_grey = '#C4C3C0'
 
-# Set out default theme for charts
+# Set default theme for charts
 jf_theme = theme(
   rect = element_rect(fill = jf_white),
   panel.grid.major.y = element_line(color = jf_grey, size = 0.2),
@@ -53,14 +53,14 @@ jf_theme = theme(
   strip.text = element_blank()
 )
 
-# Set out default theme for maps
+# Set default theme for maps
 jf_map_theme = jf_theme + 
   theme(
     axis.text = element_blank(),
     panel.grid.major = element_blank()
   )
 
-# Map out Individual Chart
+# Chart trends in building sales citywide 
 ggplot(data_nyc, aes(
     fill=ptype,
     # Configure the housing type here:
@@ -75,9 +75,11 @@ ggplot(data_nyc, aes(
                       ) +
   jf_theme
 
+# Export graphic to SVG by running:
 # ggsave("Graphics/all_nyc_trend.svg", device = "svg")
   
 
+# Convert table to long format to look at specific building types
 data_long <- data_nyc %>% 
   pivot_longer(
     starts_with("bldg"), 
@@ -87,7 +89,7 @@ data_long <- data_nyc %>%
   mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
   filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
 
-# Facet Chart
+# Chart trends in building sales citywide for specific building types
 ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   # Grouped bar chart: 
   geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
@@ -100,6 +102,7 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
                       type = c(jf_pink, jf_green)) +
   jf_theme
 
+# Export graphic to SVG by running:
 # ggsave("Graphics/trends_by_housing_type.svg", device = "svg", width=5, height=10)
 
 ### VISUALIZE SALES BY NEIGHBORHOOD OVER TIME: 
@@ -107,6 +110,7 @@ ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
 # Run custom SQL query in nycdb
 data_neighborhood <- dbGetQuery(con, statement = read_file("sql/sales_by_neighborhood.sql") , .con = con)
 
+# Convert table to long format to look at specific building types
 data_neighborhood_long <- data_neighborhood %>% 
   pivot_longer(
     starts_with("bldg"), 
@@ -117,7 +121,7 @@ data_neighborhood_long <- data_neighborhood %>%
   filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
 
 
-# Facet Chart
+# Chart trends in building sales citywide for specific neighborhoods
 ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
   geom_line(size = 1.5) +
   facet_wrap(neighborhood ~ bldg_type) +
@@ -129,6 +133,7 @@ ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
                       type = c(jf_pink, jf_green)) +
   jf_theme
 
+# Export graphic to SVG by running:
 # ggsave("Graphics/sales_by_neighborhood.svg", device = "svg")
 
 ### MAP SALES BY ZIPCODE OVER TIME:  
@@ -148,7 +153,7 @@ data_by_zip_shapefile = nyc_zips_shapefile %>%
   inner_join(data_by_zip, by = 'zipcode') %>%
   mutate(predom = ifelse(corp_sales > total_sales/2, "corp", "person"))
 
-# Plot nyc map small multiples
+# Plot nyc map small multiples showing predominant type of buyer per zip code
 ggplot(data_by_zip_shapefile, aes(fill = predom)) +
   geom_sf(color = jf_white, size = 0.05) +
   facet_wrap(~ year, nrow = 2) + 
@@ -158,7 +163,7 @@ ggplot(data_by_zip_shapefile, aes(fill = predom)) +
                       type = c(jf_pink, jf_green)) +
   jf_map_theme
   
-
+# Export graphic to SVG by running:
 # ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
 
 ### COMPARE SALES BY ZIPCODE TO COVID EVICTION FILINGS:  
@@ -180,6 +185,9 @@ ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
   ) +
   jf_map_theme
 
+# Export graphic to SVG by running:
+# ggsave("Graphics/nyc_eviction_filings_map.svg", device = "svg", width=8, height=8)
+
 # Summarize sales data to look only at specific year range
 data_by_zip_summarised <- data_by_zip %>%
   filter(year >= 2016 & year <= 2018) %>%
@@ -200,3 +208,15 @@ ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
     na.value = jf_grey
   ) +
   jf_map_theme
+
+# Export graphic to SVG by running:
+# ggsave("Graphics/nyc_corporate_sales_map.svg", device = "svg", width=8, height=8)
+
+### EXTRACT DATA TO VISUALIZE TIME LAPSE OF INDIVIDUAL SALES: 
+
+# Run custom SQL query in nycdb
+individual_sales_with_buyer_type <- dbGetQuery(con, statement = read_file("sql/individual_sales_for_map.sql") , .con = con)
+
+# Export dataframe to CSV by running:
+# write_csv(individual_sales_with_buyer_type, file = "individual_sales_with_buyer_type.csv", na = "")
+
