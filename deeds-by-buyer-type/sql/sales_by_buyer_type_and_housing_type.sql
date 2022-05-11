@@ -3,7 +3,7 @@ select
 		when p.name ~ any('{LLC,CORP,INC,BANK,ASSOC,TRUST}') then 'corp'
 	else 'person' end as ptype,
 	extract(year from docdate) as year,
-	count(distinct(bbl)) filter(where pl.unitsres > 0) as bldg_sales_all_residential,
+	count(distinct(bbl)) as bldg_sales_all_residential,
 	count(distinct(bbl)) filter(where pl.unitsres > 1) as bldg_sales_2_plus_unit,
 	count(distinct(bbl)) filter(where pl.unitsres > 2) as bldg_sales_3_plus_unit,
 	count(distinct(bbl)) filter(where pl.unitsres > 3) as bldg_sales_4_plus_unit,
@@ -26,4 +26,5 @@ and docamount > 100
 and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
 -- EDIT THIS LINE TO FILTER BY ZIPCODE:
 -- and pl.zipcode = any('{11238,11205}')
+and pl.unitsres > 0
 group by ptype, year;
