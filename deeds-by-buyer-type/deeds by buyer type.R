@@ -28,6 +28,35 @@ con <- dbConnect(
 # Run custom SQL query in nydcb
 data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_housing_type.sql") , .con = con)
 
+# Set variables for universal colors
+jf_pink = '#FFA0C7'
+jf_green = '#1AA551'
+jf_black = '#242323'
+jf_white = '#FAF8F4'
+jf_grey = '#C4C3C0'
+
+jf_theme = theme(
+  rect = element_rect(fill = jf_white),
+  panel.grid.major.y = element_line(color = jf_grey, size = 0.2),
+  panel.grid.major.x = element_blank(),
+  legend.position="none",
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  axis.ticks = element_blank(),
+  axis.text = element_text(color = jf_black),
+  panel.background = element_blank(),
+  panel.border = element_blank(),
+  panel.grid.minor = element_blank(),
+  strip.background = element_blank(),
+  strip.text = element_blank()
+)
+
+jf_map_theme = jf_theme + 
+  theme(
+    axis.text = element_blank(),
+    panel.grid.major = element_blank()
+  )
+
 # Map out Individual Chart
 ggplot(data_nyc, aes(
     fill=ptype,
@@ -35,19 +64,13 @@ ggplot(data_nyc, aes(
     y=bldg_sales_3_plus_unit, 
     x=year)
   ) + 
-  geom_bar(position="dodge", stat="identity") +
-  xlab("Year") +
-  ylab("Annual Property Purchases") +
+  geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
   scale_fill_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
-                      type = c("#FFBA33", "#FFA0C7")
+                      type = c(jf_pink, jf_green)
                       ) +
-  theme_fivethirtyeight() +
-  theme(text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
-  )
+  jf_theme
 
 # ggsave("Graphics/all_nyc_trend.svg", device = "svg")
   
@@ -64,21 +87,15 @@ data_long <- data_nyc %>%
 # Facet Chart
 ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
   # Grouped bar chart: 
-  geom_bar(position="dodge", stat="identity") +
-  # Proportional stacked bar chart: 
-  # geom_bar(position="fill", stat="identity") +
+  geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
   facet_wrap(~ bldg_type, nrow = 3, scales = "free_y") +
   xlab("Year") +
   ylab("Annual Property Purchases") +
   scale_fill_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
-                      type = c("#FFBA33", "#FFA0C7")) +
-  theme_fivethirtyeight() +
-  theme(text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
-  )
+                      type = c(jf_pink, jf_green)) +
+  jf_theme
 
 # ggsave("Graphics/trends_by_housing_type.svg", device = "svg", width=5, height=10)
 
@@ -106,12 +123,8 @@ ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
   scale_color_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
-                      type = c("#FFBA33", "#FFA0C7")) +
-  theme_fivethirtyeight() +
-  theme(text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-        panel.grid.major = element_line(color = '#FAF8F4', linetype = 'dotted')
-  )
+                      type = c(jf_pink, jf_green)) +
+  jf_theme
 
 # ggsave("Graphics/sales_by_neighborhood.svg", device = "svg")
 
@@ -134,21 +147,14 @@ data_by_zip_shapefile = nyc_zips_shapefile %>%
 
 # Plot nyc map small multiples
 ggplot(data_by_zip_shapefile, aes(fill = predom)) +
-  geom_sf(color = "#242323", size = 0.05) +
+  geom_sf(color = jf_white, size = 0.05) +
   facet_wrap(~ year, nrow = 2) + 
   scale_fill_discrete(name="Predominant type of buyer:",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
-                      type = c("#FFBA33", "#FFA0C7")) +
-  theme_fivethirtyeight() +
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-  )
+                      type = c(jf_pink, jf_green)) +
+  jf_map_theme
+  
 
 # ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
 
@@ -163,16 +169,8 @@ evictions_by_zip_shapefile = nyc_zips_shapefile %>%
 
 # Plot map of nyc eviction filings during COVID
 ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
-  geom_sf(color = "#242323", size = 0.05) +
-  theme_fivethirtyeight() +
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-  )
+  geom_sf(color = jf_white, size = 0.05) +
+  jf_map_theme
 
 # Summarize sales data to look only at specific year range
 data_by_zip_summarised <- data_by_zip %>%
@@ -187,13 +185,5 @@ data_by_zip_summarised_shapefile = nyc_zips_shapefile %>%
 
 # Plot map of percent corporate sales by zip 
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
-  geom_sf(color = "#242323", size = 0.05) +
-  theme_fivethirtyeight() +
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        text = element_text(color = '#FAF8F4'),
-        rect = element_rect(fill = '#242323'),
-  )
+  geom_sf(color = jf_white, size = 0.05) +
+  jf_map_theme
