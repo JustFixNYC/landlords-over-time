@@ -31,10 +31,12 @@ data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_h
 # Set variables for universal colors
 jf_pink = '#FFA0C7'
 jf_green = '#1AA551'
+jf_orange = '#FF813A'
 jf_black = '#242323'
 jf_white = '#FAF8F4'
 jf_grey = '#C4C3C0'
 
+# Set out default theme for charts
 jf_theme = theme(
   rect = element_rect(fill = jf_white),
   panel.grid.major.y = element_line(color = jf_grey, size = 0.2),
@@ -51,6 +53,7 @@ jf_theme = theme(
   strip.text = element_blank()
 )
 
+# Set out default theme for maps
 jf_map_theme = jf_theme + 
   theme(
     axis.text = element_blank(),
@@ -169,7 +172,12 @@ evictions_by_zip_shapefile = nyc_zips_shapefile %>%
 
 # Plot map of nyc eviction filings during COVID
 ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
-  geom_sf(color = jf_white, size = 0.05) +
+  geom_sf(color = jf_grey, size = 0.05) +
+  scale_fill_gradientn(
+    colours = c(jf_white,jf_orange,jf_orange), 
+    breaks = c(0,0.5,1),
+    na.value = jf_grey
+  ) +
   jf_map_theme
 
 # Summarize sales data to look only at specific year range
@@ -185,5 +193,10 @@ data_by_zip_summarised_shapefile = nyc_zips_shapefile %>%
 
 # Plot map of percent corporate sales by zip 
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
-  geom_sf(color = jf_white, size = 0.05) +
+  geom_sf(color = jf_grey, size = 0.05) +
+  scale_fill_gradientn(
+    colours = c(jf_white,jf_white,jf_pink), 
+    breaks = c(0,0.7, 1), 
+    na.value = jf_grey
+  ) +
   jf_map_theme
