@@ -25,9 +25,6 @@ con <- dbConnect(
 
 ### VISUALIZE SALES BY BUYER TYPE OVER TIME:  
 
-# Run custom SQL query in nydcb
-data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_housing_type.sql") , .con = con)
-
 # Set variables for universal colors
 jf_pink = '#FFA0C7'
 jf_green = '#1AA551'
@@ -60,6 +57,9 @@ jf_map_theme = jf_theme +
     panel.grid.major = element_blank()
   )
 
+# Run custom SQL query in nydcb
+data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_housing_type.sql") , .con = con)
+
 # Chart trends in building sales citywide 
 ggplot(data_nyc, aes(
     fill=ptype,
@@ -78,6 +78,24 @@ ggplot(data_nyc, aes(
 # Export graphic to SVG by running:
 # ggsave("Graphics/all_nyc_trend.svg", device = "svg")
   
+# Run custom SQL query in nydcb
+change_of_owner_type <- dbGetQuery(con, statement = read_file("sql/sales_between_different_owner_types.sql") , .con = con)
+
+# Chart trends in building sales where change of owner type occurred 
+ggplot(change_of_owner_type, aes(
+  color=buyertype,
+  # Configure the housing type here:
+  y=count, 
+  x=year)
+) + 
+  geom_smooth(se=F) +
+  scale_color_discrete(name="Buyer Type",
+                      breaks=c("corp", "person"),
+                      labels=c("Corporation", "Person"),
+                      type = c(jf_pink, jf_green)
+  ) +
+  jf_theme
+
 
 # Convert table to long format to look at specific building types
 data_long <- data_nyc %>% 
