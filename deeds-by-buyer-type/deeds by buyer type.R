@@ -88,7 +88,8 @@ ggplot(change_of_owner_type, aes(
   y=count, 
   x=year)
 ) + 
-  geom_line(se=F) +
+  geom_line() +
+  expand_limits(y = 0) +
   scale_color_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
