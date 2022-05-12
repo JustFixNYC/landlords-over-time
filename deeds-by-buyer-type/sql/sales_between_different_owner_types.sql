@@ -28,7 +28,7 @@ seller_and_buyer as (
 		extract(year from date) as year,
 		count(distinct bbl)
 	from 
-		(select *, unnest(bbls) as bbl from combined_deeds)
+		(select *, unnest(bbls) as bbl from combined_deeds) t
 	group by sellertype, buyertype, year
 )
 
