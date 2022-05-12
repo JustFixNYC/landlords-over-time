@@ -85,7 +85,7 @@ change_of_owner_type <- dbGetQuery(con, statement = read_file("sql/sales_between
 ggplot(change_of_owner_type, aes(
   color=buyertype,
   # Configure the housing type here:
-  y=count, 
+  y=bldg_sales_3_plus_unit, 
   x=year)
 ) + 
   geom_line() +
