@@ -1,6 +1,7 @@
 with combined_deeds as (
 	select 
 		documentid,
+		array_agg(l.bbl) as bbls,
 		string_agg(p.name,', ') filter (where partytype = '1') as seller,
 		string_agg(p.name,', ') filter (where partytype = '2') as buyer,
 		max(docdate) as date 
@@ -25,8 +26,9 @@ seller_and_buyer as (
 			when buyer ~ any('{LLC,CORP,INC,BANK,ASSOC,TRUST}') then 'corp'
 		else 'person' end as buyertype,
 		extract(year from date) as year,
-		count(*)
-	from combined_deeds
+		count(distinct bbl)
+	from 
+		(select *, unnest(bbls) as bbl from combined_deeds)
 	group by sellertype, buyertype, year
 )
 
