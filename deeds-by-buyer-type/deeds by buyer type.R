@@ -101,7 +101,7 @@ ggplot(change_of_owner_type, aes(
 # ggsave("Graphics/all_nyc_change_of_owner_type.svg", device = "svg")
 
 # Convert table to long format to look at specific building types
-data_long <- data_nyc %>% 
+data_long <- change_of_owner_type %>% 
   pivot_longer(
     starts_with("bldg"), 
     names_to = "bldg_type", 
@@ -111,7 +111,7 @@ data_long <- data_nyc %>%
   filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
 
 # Chart trends in building sales citywide for specific building types
-ggplot(data_long, aes(fill=ptype, y=sales, x=year)) +
+ggplot(data_long, aes(fill=buyertype, y=sales, x=year)) +
   # Grouped bar chart: 
   geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
   facet_wrap(~ bldg_type, nrow = 3, scales = "free_y") +
