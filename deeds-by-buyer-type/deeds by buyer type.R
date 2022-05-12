@@ -88,7 +88,7 @@ ggplot(change_of_owner_type, aes(
   y=count, 
   x=year)
 ) + 
-  geom_smooth(se=F) +
+  geom_line(se=F) +
   scale_color_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
@@ -96,6 +96,8 @@ ggplot(change_of_owner_type, aes(
   ) +
   jf_theme
 
+# Export graphic to SVG by running:
+# ggsave("Graphics/all_nyc_change_of_owner_type.svg", device = "svg")
 
 # Convert table to long format to look at specific building types
 data_long <- data_nyc %>% 

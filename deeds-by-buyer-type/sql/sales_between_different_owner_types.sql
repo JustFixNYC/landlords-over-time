@@ -12,7 +12,7 @@ with combined_deeds as (
 	and docdate >= '2003-01-01'
 	and docamount > 100
 	and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
-	and pl.unitsres > 0
+	and pl.unitsres >= 3
 	group by documentid
 ),
 
