@@ -38,6 +38,7 @@ jf_theme = theme(
   rect = element_rect(fill = jf_white),
   panel.grid.major.y = element_line(color = jf_grey, size = 0.2),
   panel.grid.major.x = element_blank(),
+  legend.title = element_blank(),
   legend.position="none",
   axis.title.x = element_blank(),
   axis.title.y = element_blank(),
@@ -201,34 +202,43 @@ ggplot(evictions_by_zip_shapefile, aes(fill = filingsrate_2plus)) +
   geom_sf(color = jf_grey, size = 0.05) +
   scale_fill_gradientn(
     colours = c(jf_white,jf_orange,jf_orange), 
-    breaks = c(0,0.5,1),
     na.value = jf_grey
   ) +
-  jf_map_theme
+  jf_map_theme + 
+  # Let's add the legend just as a reference for future graphics editing
+  theme(
+    legend.position="right"
+  )
 
 # Export graphic to SVG by running:
 # ggsave("Graphics/nyc_eviction_filings_map.svg", device = "svg", width=8, height=8)
 
+# Run custom SQL query in nycdb
+change_of_owner_data_by_zip <- dbGetQuery(con, statement = read_file("sql/sales_between_owner_types_by_zip.sql") , .con = con)
+
 # Summarize sales data to look only at specific year range
-data_by_zip_summarised <- data_by_zip %>%
-  filter(year >= 2016 & year <= 2018) %>%
+data_by_zip_summarised <- change_of_owner_data_by_zip %>%
+  filter(year >= 2013 & year <= 2017) %>%
   group_by(zipcode) %>%
-  summarise(corp_sales = sum(corp_sales), total_sales = sum(total_sales)) %>%
-  mutate(pct_corp = corp_sales/total_sales)
+  summarise(person_to_corp_sales = sum(person_to_corp_sales), res_bldgs = max(res_bldgs)) %>%
+  mutate(pct_corp = person_to_corp_sales/res_bldgs)
 
 # Join spatial layer with sql data
 data_by_zip_summarised_shapefile = nyc_zips_shapefile %>% 
-  inner_join(data_by_zip_summarised, by = 'zipcode')
+  left_join(data_by_zip_summarised, by = 'zipcode')
 
 # Plot map of percent corporate sales by zip 
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
   geom_sf(color = jf_grey, size = 0.05) +
   scale_fill_gradientn(
-    colours = c(jf_white,jf_white,jf_pink), 
-    breaks = c(0,0.7, 1), 
+    colours = c(jf_white,jf_pink,jf_pink), 
     na.value = jf_grey
   ) +
-  jf_map_theme
+  jf_map_theme + 
+  # Let's add the legend just as a reference for future graphics editing
+  theme(
+    legend.position="right"
+  )
 
 # Export graphic to SVG by running:
 # ggsave("Graphics/nyc_corporate_sales_map.svg", device = "svg", width=8, height=8)
