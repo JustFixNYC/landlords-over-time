@@ -63,13 +63,14 @@ data_nyc <- dbGetQuery(con, statement = read_file("sql/sales_by_buyer_type_and_h
 
 # Chart trends in building sales citywide 
 ggplot(data_nyc, aes(
-    fill=ptype,
+    color=ptype,
     # Configure the housing type here:
     y=bldg_sales_3_plus_unit, 
     x=year)
   ) + 
-  geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
-  scale_fill_discrete(name="Buyer Type",
+  geom_line(size = 1.5) +
+  expand_limits(y = 0) +
+  scale_color_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
                       type = c(jf_pink, jf_green)
