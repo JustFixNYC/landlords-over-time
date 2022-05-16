@@ -13,7 +13,7 @@ with combined_deeds as (
 	and docdate >= '2003-01-01'
 	and docamount > 100
 	and p.name !~ any('{TRUSTEE,REFEREE,WILL AND TESTAMENT}')
-	and pl.unitsres > 0
+	and pl.unitsres > 2
     and pl.latitude is not null and pl.longitude is not null
 	group by documentid
 ),
@@ -27,6 +27,7 @@ seller_and_buyer as (
 			when buyer ~ any('{LLC,CORP,INC,BANK,ASSOC,TRUST}') then 'corp'
 		else 'person' end as buyertype,
         date::timestamp,
+        bbl,
         unitsres,
         latitude,
         longitude
