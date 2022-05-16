@@ -253,7 +253,8 @@ individual_sales_with_buyer_type <- dbGetQuery(con, statement = read_file("sql/i
 # write_csv(individual_sales_with_buyer_type, file = "individual_sales_with_buyer_type.csv", na = "")
 
 # Run custom SQL query in nycdb
-individual_sales_where_owner_type_changed <- dbGetQuery(con, statement = read_file("sql/individual_sales_where_owner_type_changed.sql") , .con = con)
+individual_sales_where_owner_type_changed <- dbGetQuery(con, statement = read_file("sql/individual_sales_where_owner_type_changed.sql") , .con = con) %>%
+  distinct()
 
 # Export dataframe to CSV by running:
 # write_csv(individual_sales_where_owner_type_changed, file = "individual_sales_where_owner_type_changed.csv", na = "")
