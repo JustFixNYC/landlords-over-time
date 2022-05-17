@@ -110,7 +110,7 @@ data_long <- change_of_owner_type %>%
     values_to = "sales"
   ) %>% 
   mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
-  filter(bldg_type %in% c("2_or_less_unit", "6_plus_unit"))
+  filter(bldg_type %in% c("2_or_less_unit", "3_to_5_unit", "rent_stab"))
 
 # Chart trends in building sales citywide for specific building types
 ggplot(data_long, aes(color=buyertype, y=sales, x=year)) +
@@ -142,7 +142,7 @@ data_neighborhood_long <- data_neighborhood %>%
     values_to = "sales"
   ) %>% 
   mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
-  filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
+  filter(bldg_type %in% c("2_or_less_unit", "3_to_5_unit", "rent_stab"))
 
 
 # Chart trends in building sales citywide for specific neighborhoods

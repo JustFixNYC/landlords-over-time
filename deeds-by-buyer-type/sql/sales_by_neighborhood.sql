@@ -7,7 +7,8 @@ select
 	else 'prospect' end as neighborhood,
 	extract(year from docdate) as year,
 	count(distinct(bbl)) as bldg_sales_all_residential,
-	count(distinct(bbl)) filter(where pl.unitsres > 5) as bldg_sales_6_plus_unit,
+	count(distinct(bbl)) filter(where rs.ucbbl is not null) as bldg_sales_rent_stab,
+	count(distinct(bbl)) filter(where pl.unitsres >= 3 and pl.unitsres <= 5) as bldg_sales_3_to_5_unit,
 	count(distinct(bbl)) filter(where pl.unitsres < 3) as bldg_sales_2_or_less_unit
 from real_property_parties p
 inner join real_property_master m using(documentid)
