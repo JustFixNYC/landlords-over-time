@@ -187,8 +187,19 @@ ggplot(data_by_zip_shapefile, aes(fill = predom)) +
                       type = c(jf_pink, jf_green)) +
   jf_map_theme
 
+# Export graphic to SVG by running:
+# ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
+
+# Generate higher resolution shapefile
+nyc_zips_shapefile_high_res <- read_sf("nyc_zips/nyc_zips.shp") %>% 
+  janitor::clean_names() %>% 
+  st_transform(2263) %>%
+  select(zipcode)
+
 # Only look at years 2003 and 2014 for comparison
-data_by_zip_shapefile_two_years_only <- data_by_zip_shapefile %>%
+data_by_zip_shapefile_two_years_only <- nyc_zips_shapefile_high_res %>% 
+  inner_join(data_by_zip, by = 'zipcode') %>%
+  mutate(predom = ifelse(corp_sales > total_sales/2, "corp", "person")) %>%
   filter(year == 2003 | year == 2014)
 
 # Plot 2-year comparison of predominant type of buyer per zip code 
@@ -202,7 +213,7 @@ ggplot(data_by_zip_shapefile_two_years_only, aes(fill = predom)) +
   jf_map_theme
   
 # Export graphic to SVG by running:
-# ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
+# ggsave("Graphics/nyc_map_2003_2014.svg", device = "svg", width=20, height=10)
 
 ### COMPARE SALES BY ZIPCODE TO COVID EVICTION FILINGS:  
 
