@@ -110,16 +110,17 @@ data_long <- change_of_owner_type %>%
     values_to = "sales"
   ) %>% 
   mutate(bldg_type = str_replace(bldg_type,"bldg_sales_","")) %>%
-  filter(bldg_type %in% c("2_or_less_unit", "all_residential", "6_plus_unit"))
+  filter(bldg_type %in% c("2_or_less_unit", "6_plus_unit"))
 
 # Chart trends in building sales citywide for specific building types
-ggplot(data_long, aes(fill=buyertype, y=sales, x=year)) +
+ggplot(data_long, aes(color=buyertype, y=sales, x=year)) +
   # Grouped bar chart: 
-  geom_bar(position=position_dodge(0.8), width=0.6, stat="identity") +
+  geom_line() +
+  expand_limits(y = 0) +
   facet_wrap(~ bldg_type, nrow = 3, scales = "free_y") +
   xlab("Year") +
   ylab("Annual Property Purchases") +
-  scale_fill_discrete(name="Buyer Type",
+  scale_color_discrete(name="Buyer Type",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),
                       type = c(jf_pink, jf_green)) +
@@ -166,7 +167,7 @@ data_by_zip <- dbGetQuery(con, statement = read_file("sql/sales_by_zip.sql") , .
 
 # Load in spatial layer from shapefile
 nyc_zips_shapefile <- read_sf("nyc_zips/nyc_zips.shp") %>% 
-  rmapshaper::ms_simplify() %>%
+  rmapshaper::ms_simplify(0.0025) %>%
   janitor::clean_names() %>% 
   st_transform(2263) %>%
   select(zipcode)
@@ -179,7 +180,21 @@ data_by_zip_shapefile = nyc_zips_shapefile %>%
 # Plot nyc map small multiples showing predominant type of buyer per zip code
 ggplot(data_by_zip_shapefile, aes(fill = predom)) +
   geom_sf(color = jf_white, size = 0.05) +
-  facet_wrap(~ year, nrow = 2) + 
+  facet_wrap(~ year, nrow = 4) + 
+  scale_fill_discrete(name="Predominant type of buyer:",
+                      breaks=c("corp", "person"),
+                      labels=c("Corporation", "Person"),
+                      type = c(jf_pink, jf_green)) +
+  jf_map_theme
+
+# Only look at years 2003 and 2014 for comparison
+data_by_zip_shapefile_two_years_only <- data_by_zip_shapefile %>%
+  filter(year == 2003 | year == 2014)
+
+# Plot 2-year comparison of predominant type of buyer per zip code 
+ggplot(data_by_zip_shapefile_two_years_only, aes(fill = predom)) +
+  geom_sf(color = jf_white, size = 0.05) +
+  facet_wrap(~ year) + 
   scale_fill_discrete(name="Predominant type of buyer:",
                       breaks=c("corp", "person"),
                       labels=c("Corporation", "Person"),

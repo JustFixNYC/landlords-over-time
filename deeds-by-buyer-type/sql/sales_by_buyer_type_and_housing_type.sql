@@ -9,6 +9,7 @@ select
 	count(distinct(bbl)) filter(where pl.unitsres > 3) as bldg_sales_4_plus_unit,
 	count(distinct(bbl)) filter(where pl.unitsres > 5) as bldg_sales_6_plus_unit,
 	count(distinct(bbl)) filter(where pl.unitsres <= 5) as bldg_sales_5_or_less_unit,
+	count(distinct(bbl)) filter(where pl.unitsres >= 3 and pl.unitsres <= 5) as bldg_sales_3_to_5_unit,
 	count(distinct(bbl)) filter(where pl.unitsres < 3) as bldg_sales_2_or_less_unit,
 	count(distinct(bbl)) filter(where pl.unitsres = 1) as bldg_sales_1_unit,
 	count(distinct(bbl)) filter(where rs.ucbbl is not null) as bldg_sales_rent_stab
