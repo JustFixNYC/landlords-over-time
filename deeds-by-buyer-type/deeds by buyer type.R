@@ -255,10 +255,11 @@ data_by_zip_summarised_shapefile = nyc_zips_shapefile_high_res %>%
   left_join(data_by_zip_summarised, by = 'zipcode')
 
 # Plot map of percent corporate sales by zip 
+jf_pink_darker = '#FF71AA'
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
   geom_sf(color = jf_grey, size = 0.05) +
   scale_fill_gradientn(
-    colours = c(jf_white,jf_pink,jf_pink), 
+    colours = c(jf_white,jf_pink_darker,jf_pink_darker), 
     na.value = jf_grey
   ) +
   jf_map_theme + 
