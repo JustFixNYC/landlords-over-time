@@ -32,6 +32,7 @@ jf_orange = '#FF813A'
 jf_black = '#242323'
 jf_white = '#FAF8F4'
 jf_grey = '#C4C3C0'
+jf_pink_darker = '#FF71AA'
 
 # Set default theme for charts
 jf_theme = theme(
@@ -191,10 +192,18 @@ ggplot(data_by_zip_shapefile, aes(fill = predom)) +
 # ggsave("Graphics/nyc_map_over_time.svg", device = "svg", width=10, height=5)
 
 # Generate higher resolution shapefile
-nyc_zips_shapefile_high_res <- read_sf("nyc_zips/nyc_zips.shp") %>% 
+nyc_zips_shapefile_high_res <- read_sf("shapefiles/nyc_zips.shp") %>% 
   janitor::clean_names() %>% 
   st_transform(2263) %>%
   select(zipcode)
+
+# Plot gray basemap 
+ggplot(nyc_zips_shapefile_high_res) +
+  geom_sf(color = jf_white, fill= jf_grey, size = 0.05) +
+  jf_map_theme
+
+# Export graphic to SVG by running:
+# ggsave("Graphics/nyc_basemap.svg", device = "svg", width=8, height=8)
 
 # Only look at years 2003 and 2014 for comparison
 data_by_zip_shapefile_two_years_only <- nyc_zips_shapefile_high_res %>% 
@@ -255,7 +264,6 @@ data_by_zip_summarised_shapefile = nyc_zips_shapefile_high_res %>%
   left_join(data_by_zip_summarised, by = 'zipcode')
 
 # Plot map of percent corporate sales by zip 
-jf_pink_darker = '#FF71AA'
 ggplot(data_by_zip_summarised_shapefile, aes(fill = pct_corp)) +
   geom_sf(color = jf_grey, size = 0.05) +
   scale_fill_gradientn(

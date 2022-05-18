@@ -39,7 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 # Output graphics files
-deeds-by-buyer-type/Graphics/**
+Graphics/**
 
 # Other system-related files
 **/.DS_Store
