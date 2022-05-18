@@ -221,7 +221,7 @@ ggplot(data_by_zip_shapefile_two_years_only, aes(fill = predom)) +
 evictions_by_zip <- dbGetQuery(con, statement = read_file("https://raw.githubusercontent.com/housing-data-coalition/rtc-eviction-viz/main/sql/filings-by-zip-since-0323.sql") , .con = con)
 
 # Join spatial layer with sql data
-evictions_by_zip_shapefile = nyc_zips_shapefile %>% 
+evictions_by_zip_shapefile = nyc_zips_shapefile_high_res %>% 
   inner_join(evictions_by_zip, by = 'zipcode')
 
 # Plot map of nyc eviction filings during COVID
@@ -251,7 +251,7 @@ data_by_zip_summarised <- change_of_owner_data_by_zip %>%
   mutate(pct_corp = person_to_corp_sales/res_bldgs)
 
 # Join spatial layer with sql data
-data_by_zip_summarised_shapefile = nyc_zips_shapefile %>% 
+data_by_zip_summarised_shapefile = nyc_zips_shapefile_high_res %>% 
   left_join(data_by_zip_summarised, by = 'zipcode')
 
 # Plot map of percent corporate sales by zip 
