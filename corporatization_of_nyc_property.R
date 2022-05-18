@@ -166,7 +166,7 @@ ggplot(data_neighborhood_long, aes(color=ptype, y=sales, x=year)) +
 data_by_zip <- dbGetQuery(con, statement = read_file("sql/sales_by_zip.sql") , .con = con)
 
 # Load in spatial layer from shapefile
-nyc_zips_shapefile <- read_sf("nyc_zips/nyc_zips.shp") %>% 
+nyc_zips_shapefile <- read_sf("shapefiles/nyc_zips.shp") %>% 
   rmapshaper::ms_simplify(0.0025) %>%
   janitor::clean_names() %>% 
   st_transform(2263) %>%
