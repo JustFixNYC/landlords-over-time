@@ -14,7 +14,7 @@ In order to connect to nycdb, make a copy of the [Renviron.sample](https://githu
 
 ### Step 2: Running the analysis
 
-Once all of the nycdb credentials are configured, you should be good to go to run the analysis. Make sure you have R installed on your computer—or better yet, install [R Studio](https://www.rstudio.com/). Then, just open up [corporatization_of_nyc_property.R](https://github.com/JustFixNYC/landlords-over-time/blob/main/corporatization_of_nyc_property.R) and run the script. If you are using R Studio, make sure your working directory is set to the root directory of this repo. 
+Once all of the nycdb credentials are configured, you should be good to go to run the analysis. Make sure you have [R installed](https://www.r-project.org/) on your computer—or better yet, install [R Studio](https://www.rstudio.com/). Then, just open up [corporatization_of_nyc_property.R](https://github.com/JustFixNYC/landlords-over-time/blob/main/corporatization_of_nyc_property.R) and run the script. If you are using R Studio, make sure your working directory is set to the root directory of this repo. 
 
 ## Questions about the data?
 
