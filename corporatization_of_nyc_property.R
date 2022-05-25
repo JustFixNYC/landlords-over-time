@@ -23,6 +23,14 @@ con <- dbConnect(
   dbname = Sys.getenv("HDC_NYCDB_DBNAME")
 )
 
+### CALCULATE PERCENTAGE OF HPD REGISTERED UNITS THAT LIST A CORPORATION:
+
+# Run custom SQL query in nycdb
+hpd_corp_stats <- dbGetQuery(con, statement = read_file("sql/hpd_registered_corporations.sql") , .con = con)
+
+# Print out results in console:
+hpd_corp_stats
+
 ### VISUALIZE SALES BY BUYER TYPE OVER TIME:  
 
 # Set variables for universal colors
