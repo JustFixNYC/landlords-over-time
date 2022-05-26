@@ -1,5 +1,6 @@
 # Corporatization of NYC Property: Data Analysis 
 This repository includes all of the code for the "The Corporatization of NYC Real Estate" data report published by JustFix. 
+
 [VIEW REPORT LIVE](https://medium.com/justfixnyc/corporatization-of-nyc-real-estate-83e2bf191b73)
 
 
